@@ -1,3 +1,6 @@
 .env
 .How-to-Solve-Sudoku.pdf
 __pycache__
+CLAUDE.md
+.idea
+.venv
