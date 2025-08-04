@@ -1,16 +1,9 @@
 # Super Sudoku
-WIP
+
 ## Features
-Basic 9x9 Sudoku with 3 preset difficulties + custom difficulty(WIP)
-AI assistant with logical reasoning using OpenAI's LLM
-
-## In Progress (90% of the Project)
-Adding widgets to incorporate AI assistant
-Setting up buttons and widgets to allow inputs
-Keybinds to allow easy editting and highlighting
-
-## Mostly Completed
-LLM AI Assistant
+Standard 9x9 Sudoku with 3 preset difficulties + custom difficulty
+Additional keyboard controls to select all instances of a number, autofill, and so on. 
+AI assistant with logical reasoning using OpenAI's LLM and RAG via Langchain
 
 ## References
 Uses Solving Sudoku guide created by Michael Mepham
