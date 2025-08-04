@@ -6,6 +6,8 @@ from square import Cell
 from PyQt6.QtWidgets import *
 from sudoku import Sudoku
 from model import SudokuAI
+from config import config
+from settings_dialog import SettingsDialog
 import threading
 
 class SuccessOverlay(QWidget):
@@ -249,6 +251,11 @@ class MainWindow(QMainWindow):
         new_menu_item.addAction(medium_generate)
         new_menu_item.addSeparator()
         new_menu_item.addAction(difficult_generate)
+        
+        # Add settings menu
+        settings_action = QAction("Settings...", self)
+        settings_action.triggered.connect(self.show_settings)
+        menu.addAction(settings_action)
         
         # Add mode selection menu
         mode_menu = menu.addMenu("Mode")
@@ -626,13 +633,26 @@ class MainWindow(QMainWindow):
         """Initialize AI model (lazy loading)"""
         if not self.ai:
             try:
+                # Check if API key is configured
+                if not config.has_valid_api_key():
+                    self.ai_status.setText("API key not configured")
+                    self.ai_status.setStyleSheet("color: red; font-size: 10px;")
+                    self.show_api_key_required_message()
+                    return
+                
                 self.ai_status.setText("Initializing Arlo...")
                 self.ai = SudokuAI()
                 self.ai_status.setText("Arlo ready")
                 self.ai_status.setStyleSheet("color: green; font-size: 10px;")
             except Exception as e:
-                self.ai_status.setText(f"Arlo Error: {str(e)}")
-                self.ai_status.setStyleSheet("color: red; font-size: 10px;")
+                error_msg = str(e)
+                if "API key not configured" in error_msg:
+                    self.ai_status.setText("API key required")
+                    self.ai_status.setStyleSheet("color: red; font-size: 10px;")
+                    self.show_api_key_required_message()
+                else:
+                    self.ai_status.setText(f"Arlo Error: {error_msg}")
+                    self.ai_status.setStyleSheet("color: red; font-size: 10px;")
     
     def get_hint(self):
         """Get a hint from Arlo"""
@@ -789,6 +809,36 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_original_board'):
             delattr(self, '_original_board')
         self.display_sudoku()
+    
+    def show_settings(self):
+        """Show the settings dialog"""
+        SettingsDialog.show_settings(self)
+        # Refresh AI status after settings are closed
+        self.update_ai_status()
+    
+    def show_api_key_required_message(self):
+        """Show message about API key requirement"""
+        reply = QMessageBox.question(
+            self, "API Key Required",
+            "Arlo requires an OpenAI API key to function. Would you like to configure it now?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.show_settings()
+    
+    def update_ai_status(self):
+        """Update AI status display"""
+        if config.has_valid_api_key():
+            self.ai_status.setText("Arlo not initialized")
+            self.ai_status.setStyleSheet("color: gray; font-size: 10px;")
+            # Reset AI to None so it can be reinitialized with new key
+            self.ai = None
+        else:
+            self.ai_status.setText("API key not configured")
+            self.ai_status.setStyleSheet("color: red; font-size: 10px;")
+            self.ai = None
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 

@@ -1,0 +1,18 @@
+# Core application dependencies
+PyQt6
+python-sudoku
+python-dotenv
+
+# AI/LangChain dependencies  
+langchain
+langchain-community
+langchain-openai
+langchain-text-splitters
+openai
+
+# PDF processing
+pypdf
+PyPDF2
+
+# Build dependencies
+pyinstaller

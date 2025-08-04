@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -7,19 +6,24 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
+from config import config
 
 class SudokuAI:
     def __init__(self):
-        load_dotenv()
-        os.environ["OPENAI_API_KEY"] = os.getenv("API_KEY")
+        # Get API key from config system
+        api_key = config.get_openai_api_key()
+        if not api_key:
+            raise ValueError("OpenAI API key not configured. Please set it in Settings.")
+        
+        os.environ["OPENAI_API_KEY"] = api_key
         
         self.llm = ChatOpenAI(model="gpt-4o")
         self.rag_chain = None
         self._setup_rag()
     
     def _setup_rag(self):
-        # Load and process the PDF
-        file_path = "./solving_sudoku.pdf"
+        # Load and process the PDF using config system
+        file_path = config.get_pdf_path()
         loader = PyPDFLoader(file_path)
         docs = loader.load()
         
